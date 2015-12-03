@@ -6,6 +6,7 @@ class Naivebayes:
 	Coccur=[]
 	prior=[]
 	post_prob=[]
+	attributes=[]
 	@staticmethod
 	def train(traindata,trainlabel):
 		Naivebayes.prior=Naivebayes.priorprobility(trainlabel)
@@ -38,6 +39,7 @@ class Naivebayes:
 		for i in range(0,numofatt):
 			att=Naivebayes.attribute(traindata,i)
 			uniqueatt=np.unique(att)
+			Naivebayes.attributes.append(uniqueatt)
 			conprob=[]
 			for k in range(len(Naivebayes.classlabel)):
 				times=[0]*len(uniqueatt)
@@ -56,6 +58,20 @@ class Naivebayes:
 	def attribute(traindata,dim):
 		return [x[dim] for x in traindata]
 
+	@staticmethod
+	def predict(predictdata):
+		prob=[1]*len(Naivebayes.classlabel)
+		for i in range(len(Naivebayes.classlabel)):
+			for j in range(len(predictdata)):
+				loc=np.searchsorted(Naivebayes.attributes[j],predictdata[j])
+				prob[i]=prob[i]*Naivebayes.post_prob[j][i][loc]
+			prob[i]=prob[i]*Naivebayes.prior[i]
+
+		maxloc=np.argmax(prob)
+		return Naivebayes.classlabel[maxloc],prob[maxloc]
+
+
+
 
 if __name__=='__main__':
 	traindata=[[1,'S'],[1,'M'],[1,'M'],[1,'S'],[1,'S'],[2,'S']
@@ -66,3 +82,4 @@ if __name__=='__main__':
 	print(Naivebayes.prior)
 	print(Naivebayes.Coccur)
 	print(Naivebayes.post_prob)
+	(preclass,prob)=Naivebayes.predict([2,'S'])
